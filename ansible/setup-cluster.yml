@@ -1,0 +1,61 @@
+---
+- name: Configure EC2 for Kubernetes (MicroK8s)
+  hosts: k8s_node
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install core dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Install MicroK8s via snap
+      snap:
+        name: microk8s
+        classic: yes
+        channel: 1.28/stable
+
+    - name: Add ubuntu user to microk8s group
+      user:
+        name: ubuntu
+        groups: microk8s
+        append: yes
+
+    - name: Create .kube directory for ubuntu user
+      file:
+        path: /home/ubuntu/.kube
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Change ownership of microk8s config directory
+      file:
+        path: /home/ubuntu/.kube
+        owner: ubuntu
+        group: ubuntu
+        recurse: yes
+
+    - name: Generate and export kubeconfig
+      command: microk8s config
+      register: kubeconfig_output
+      changed_when: false
+
+    - name: Save kubeconfig to user directory
+      copy:
+        content: "{{ kubeconfig_output.stdout }}"
+        dest: /home/ubuntu/.kube/config
+        owner: ubuntu
+        group: ubuntu
+        mode: '0600'
+
+    - name: Enable MicroK8s DNS and Storage add-ons
+      command: microk8s enable dns hostpath-storage
+      changed_when: false
