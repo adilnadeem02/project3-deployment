@@ -15,7 +15,7 @@ spec:
       containers:
       - name: backend
         # REPLACE WITH YOUR ACTUAL DOCKER HUB USERNAME
-        image: 22i0799/project3-backend:latest 
+        image: 22i0799/project3-backend:3d51601f5e66014b1031b4d7b071eee9b3e2c913
         ports:
         - containerPort: 8000
 ---
