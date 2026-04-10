@@ -27,6 +27,7 @@ def create_todo(todo: TodoItem):
     todos_db.append(new_todo)
     current_id += 1
     return new_todo
+#temp comments
 
 @app.put("/todos/{todo_id}")
 def complete_todo(todo_id: int):
